@@ -11,26 +11,23 @@ int main() {
 
     Route routes;
 
-    int count = 1;
+    int count = routes.size() + 1;
 
     std::cin >> Q;
 
     for (int i = 0; i < Q; i++) {
-        std::vector<std::string> temp_v;
         std::cin >> N;
+        std::vector<std::string> stops(N);
 
-        for (int j = 0; j < N; j++) {
-            std::string temp_s;
-            std::cin >> temp_s;
-            temp_v.push_back(temp_s);
+        for (auto& str : stops) {
+            std::cin >> str;
         }
-        if (routes.count(temp_v) == 1) {
-            std::cout << "Already exists for " << routes.find(temp_v)->second << std::endl;
+        if (routes.count(stops) == 1) {
+            std::cout << "Already exists for " << routes.find(stops)->second << std::endl;
 
         } else {
-            routes[temp_v] = count;
-            std::cout << "New bus " << count << std::endl;
-            count++;
+            routes[stops] = count;
+            std::cout << "New bus " << count++ << std::endl;
         }
     }
 
