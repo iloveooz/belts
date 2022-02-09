@@ -12,7 +12,7 @@ public:
 	int GetDay() const;
 };
 
-bool operator<(const Date& lhs, const Date& rhs);
+bool operator < (const Date& lhs, const Date& rhs);
 
 class Database {
 public:
@@ -32,7 +32,23 @@ int main() {
 
 	std::string command;
 	while (getline(std::cin, command)) {
-		if (command == "exit" or command == "EXIT" or command == "quit" or command == "QUIT") {
+		if (command == "Add") {
+			
+		}
+
+		if (command == "Del") {
+
+		}
+
+		if (command == "Find") {
+
+		}
+
+		if (command == "Print") {
+
+		}
+
+		if (command == "q" or command == "Q") {
 			break;
 		}
 	}
