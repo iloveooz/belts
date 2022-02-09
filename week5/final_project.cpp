@@ -1,31 +1,32 @@
 // Реализуйте функции и методы классов и при необходимости добавьте свои
 
+#include <iomanip>
 #include <iostream>
 #include <map>
 #include <vector>
 #include <string>
 
-enum class DaysInMonth {
-	January = 31,
-	February = 28,
-	March = 31,
-	April = 30,
-	May = 31,
-	June = 30,
-	July = 31,
-	August = 31,
-	September = 30,
-	October = 31,
-	November = 30,
-	December = 31
+std::map<int, int> DaysInMonth{
+{1, 31},
+{2, 28},
+{3, 31},
+{4, 30},
+{5, 31},
+{6, 30},
+{7, 31},
+{8, 31},
+{9, 30},
+{10, 31},
+{11, 30},
+{12, 31}
 };
 
 class Date {
 public:
 	Date() {
-		m_year = 0;
-		m_month = 0;
-		m_day = 0;
+		m_year = 2022;
+		m_month = 2;
+		m_day = 10;
 	}
 
 	Date(int year, int month, int day) {
@@ -45,24 +46,28 @@ public:
 	int GetDay() const {
 		return m_day;
 	}
-private:
-	int countDaysInDate() const {
-		
-	}
 
+	int countDaysInDate() const {
+		const int count = m_year * 365 + m_month * DaysInMonth[m_month] + m_day;
+		return count;
+	}
+private:
 	int m_year;
 	int m_month;
 	int m_day;
 };
 
 bool operator < (const Date& lhs, const Date& rhs) {
-	if (lhs.GetYear() < rhs.GetYear()) {
+	if (lhs.countDaysInDate() < rhs.countDaysInDate())
 		return true;
-	} else {
-		if (lhs.GetMonth() < rhs.GetMonth()) {
+	return false;
+}
 
-		}
-	}
+std::ostream& operator << (std::ostream& stream, const Date& rhs) {
+	stream << rhs.GetYear() << '/' << 
+		std::setw(2) << std::setfill('0') << rhs.GetMonth() << '/' <<
+		std::setw(2) << std::setfill('0') << rhs.GetDay();
+	return stream;
 }
 
 class Database {
@@ -100,9 +105,13 @@ int main() {
 		}
 
 		if (command == "q" or command == "Q") {
+			Date date;
+			std::cout << date << std::endl;
+			std::cout << date.countDaysInDate() << std::endl;
 			break;
 		}
 	}
 
+	system("pause");
 	return 0;
 }
