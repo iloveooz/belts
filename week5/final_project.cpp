@@ -6,26 +6,11 @@
 #include <vector>
 #include <string>
 
-std::map<int, int> DaysInMonth{
-{1, 31},
-{2, 28},
-{3, 31},
-{4, 30},
-{5, 31},
-{6, 30},
-{7, 31},
-{8, 31},
-{9, 30},
-{10, 31},
-{11, 30},
-{12, 31}
-};
-
 class Date {
 public:
 	Date() {
 		m_year = 2022;
-		m_month = 2;
+		m_month = 02;
 		m_day = 10;
 	}
 
@@ -48,7 +33,7 @@ public:
 	}
 
 	int countDaysInDate() const {
-		const int count = m_year * 365 + m_month * DaysInMonth[m_month] + m_day;
+		const int count = m_year * 365 + (m_month - 1) * 31 + m_day;
 		return count;
 	}
 private:
@@ -64,7 +49,8 @@ bool operator < (const Date& lhs, const Date& rhs) {
 }
 
 std::ostream& operator << (std::ostream& stream, const Date& rhs) {
-	stream << rhs.GetYear() << '/' << 
+	stream <<
+		std::setw(4) << std::setfill('0') << rhs.GetYear() << '/' <<
 		std::setw(2) << std::setfill('0') << rhs.GetMonth() << '/' <<
 		std::setw(2) << std::setfill('0') << rhs.GetDay();
 	return stream;
@@ -87,6 +73,7 @@ int main() {
 	Database db;
 
 	std::string command;
+
 	while (getline(std::cin, command)) {
 		if (command == "Add") {
 			
@@ -105,9 +92,6 @@ int main() {
 		}
 
 		if (command == "q" or command == "Q") {
-			Date date;
-			std::cout << date << std::endl;
-			std::cout << date.countDaysInDate() << std::endl;
 			break;
 		}
 	}
