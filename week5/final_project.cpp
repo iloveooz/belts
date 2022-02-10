@@ -6,12 +6,18 @@
 #include <vector>
 #include <string>
 
+enum Command {
+	req,
+	dat,
+	eve
+};
+
 class Date {
 public:
 	Date() {
-		m_year = 2022;
-		m_month = 02;
-		m_day = 10;
+		m_year = 0;
+		m_month = 1;
+		m_day = 1;
 	}
 
 	Date(int year, int month, int day) {
@@ -69,26 +75,67 @@ private:
 	std::map<Date, std::vector<std::string>> dbase;
 };
 
+std::string ParseCommand(const std::string& str, Command com) {
+	std::string result;
+	size_t pos1 = str.find(' ');
+	size_t pos2 = str.find(' ');
+
+	switch (com) {
+		case req:			
+			if (pos1 != std::string::npos)
+				result = str.substr(0, pos1);
+			break;
+		case dat:
+			if (pos1 != std::string::npos && pos2 != std::string::npos)
+				result = str.substr(pos1 + 1, pos2);
+			break;
+		case eve:
+			if (pos2 != std::string::npos)
+				result = str.substr(pos2 + 1);
+			break;
+		default: 
+			break;
+	}
+
+	return result;
+}
+
 int main() {
 	Database db;
 
-	std::string command;
+	std::string command; // request date event
+	std::string request; // add del find print
+	std::string date;    // year-month-day
+	std::string event;   // event
+
 
 	while (getline(std::cin, command)) {
-		if (command == "Add") {
-			
+		request = ParseCommand(command, req);
+		date = ParseCommand(command, dat);
+		event = ParseCommand(command, eve);
+
+		if (request == "Add") {
+			std::cout << request << std::endl;
+			std::cout << date << std::endl;
+			std::cout << event << std::endl;
 		}
 
-		if (command == "Del") {
-
+		if (request == "Del") {
+			std::cout << request << std::endl;
+			std::cout << date << std::endl;
+			std::cout << event << std::endl;
 		}
 
-		if (command == "Find") {
-
+		if (request == "Find") {
+			std::cout << request << std::endl;
+			std::cout << date << std::endl;
+			std::cout << event << std::endl;
 		}
 
-		if (command == "Print") {
-
+		if (request == "Print") {
+			std::cout << request << std::endl;
+			std::cout << date << std::endl;
+			std::cout << event << std::endl;
 		}
 
 		if (command == "q" or command == "Q") {
