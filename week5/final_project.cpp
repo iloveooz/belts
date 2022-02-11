@@ -67,22 +67,26 @@ public:
     }
 
     bool DeleteEvent(const Date& date, const std::string& event) {
-        if (std::count(dbase.at(date).begin(), dbase.at(date).end(), event) > 0) {
+        if (std::count(dbase[date].begin(), dbase[date].end(), event) > 0) {
             dbase.at(date).erase(
                 std::remove_if(dbase.at(date).begin(), dbase.at(date).end(),
                     [&event](const std::string& value) { return value == event; }), dbase.at(date).end());
             SortEvents(date);
             return true;
         }
-        else {
-            return false;
-        }
+        return false;
     }
 
     int  DeleteDate(const Date& date) {
-        size_t size = dbase.at(date).size();
-        if (dbase.count(date) > 0) {
-            dbase.erase(date);
+        
+        size_t size = 0;
+        if (dbase.empty())
+            return size;
+        else {
+            size = dbase.at(date).size();
+            if (dbase.count(date) > 0) {
+                dbase.erase(date);
+            }
         }
         return size;
     }
@@ -95,13 +99,15 @@ public:
 
     void Print() const {
         for (const auto& [key, value] : dbase) {
-            std::cout << key << ' ';
-            for (const auto& item : value) {
-                std::cout << item;
-                if (item != value.back() || value.size() != 1)
-					std::cout << ' ';
+            if (!value.empty()) {
+                std::cout << key << ' ';
+                for (const auto& item : value) {
+                    std::cout << item;
+                    if (item != value.back() || value.size() != 1)
+                        std::cout << ' ';
+                }
+                std::cout << std::endl;
             }
-            std::cout << std::endl;
         }
     }
 
@@ -130,6 +136,7 @@ Date ParseDate(const std::string& sDate) {
     int year = 0;
     int month = 0;
     int day = 0;
+
     bool ok = true;
 
     std::stringstream sstream(sDate);
@@ -150,10 +157,10 @@ Date ParseDate(const std::string& sDate) {
     }
 
     if (month < 1 or month > 12)
-        throw std::runtime_error("Month value is invalid: " + sDate);
+        throw std::runtime_error("Month value is invalid: " + std::to_string(month));
 
     if (day < 1 or day > 31)
-        throw std::runtime_error("Day value is invalid: " + sDate);
+        throw std::runtime_error("Day value is invalid: " + std::to_string(day));
 
     const Date date(year, month, day);
 
@@ -173,49 +180,50 @@ int main() {
     std::vector<std::string> request; // add del find print
     Date date;
 
-
-    while (getline(std::cin, command)) {
-        if (!command.empty()) {
-            try {
+    try {
+        while (getline(std::cin, command)) {
+            if (!command.empty()) {
                 request = ParseCommand(command);
-	            if (request[0] == "Add") {
-	                date = ParseDate(request[1]);
-	                db.AddEvent(date, request[2]);
-	            }
-	            else if (request[0] == "Del") {
-	                date = ParseDate(request[1]);
-	                if (request.size() == 3) {
-	                    if (db.DeleteEvent(date, request[2])) {
-	                        std::cout << "Deleted successfully" << std::endl;
-	                    }
-	                    else {
-	                        std::cout << "Event not found" << std::endl;
-	                    }
-	                }
-	                else {
-	                    std::cout << "Deleted " << db.DeleteDate(date) << " events" << std::endl;
-	                }
-	            }
-	            else if (request[0] == "Find") {
-	                date = ParseDate(request[1]);
-	                db.Find(date);
-	            }
-	            else if (request[0] == "Print") {
-	                db.Print();
-	            }
-	            else {
-	                std::cout << "Unknown command: " << request[0] << std::endl;
-	            }
+                if (request[0] == "Add") {
+                    date = ParseDate(request[1]);
+                    db.AddEvent(date, request[2]);
+                }
+                else if (request[0] == "Del") {
+                    date = ParseDate(request[1]);
+                    if (request.size() == 3) {
+                        if (db.DeleteEvent(date, request[2])) {
+                            std::cout << "Deleted successfully" << std::endl;
+                        }
+                        else {
+                            std::cout << "Event not found" << std::endl;
+                        }
+                    }
+                    else {
+                        int count = db.DeleteDate(date);
+                        std::cout << "Deleted " << count << " events" << std::endl;
+                    }
+                }
+                else if (request[0] == "Find") {
+                    date = ParseDate(request[1]);
+                    db.Find(date);
+                }
+                else if (request[0] == "Print") {
+                    db.Print();
+                }
+                else {
+                    std::cout << "Unknown command: " << request[0] << std::endl;
+                }
 
-	            if (command == "q" or command == "Q") {
-	                break;
-	            }
+                if (command == "q" or command == "Q") {
+                    break;
+                }
             }
-            catch (std::exception& e) {
-                std::cout << e.what() << std::endl;
-            }
+
         }
     }
+	catch (std::exception& e) {
+		std::cout << e.what() << std::endl;
+	}
 
     return 0;
 }
