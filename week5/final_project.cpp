@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <algorithm>
+#include <exception>
 
 class Date {
 public:
@@ -52,9 +53,9 @@ bool operator < (const Date& lhs, const Date& rhs) {
 
 std::ostream& operator << (std::ostream& stream, const Date& rhs) {
     stream <<
-           std::setw(4) << std::setfill('0') << rhs.GetYear() << '/' <<
-           std::setw(2) << std::setfill('0') << rhs.GetMonth() << '/' <<
-           std::setw(2) << std::setfill('0') << rhs.GetDay();
+        std::setw(4) << std::setfill('0') << rhs.GetYear() << '-' <<
+        std::setw(2) << std::setfill('0') << rhs.GetMonth() << '-' <<
+        std::setw(2) << std::setfill('0') << rhs.GetDay();
     return stream;
 }
 
@@ -68,11 +69,12 @@ public:
     bool DeleteEvent(const Date& date, const std::string& event) {
         if (std::count(dbase.at(date).begin(), dbase.at(date).end(), event) > 0) {
             dbase.at(date).erase(
-                    std::remove_if(dbase.at(date).begin(), dbase.at(date).end(),
-                                   [&event] (const std::string& value) { return value == event; }), dbase.at(date).end());
+                std::remove_if(dbase.at(date).begin(), dbase.at(date).end(),
+                    [&event](const std::string& value) { return value == event; }), dbase.at(date).end());
             SortEvents(date);
             return true;
-        } else {
+        }
+        else {
             return false;
         }
     }
@@ -86,14 +88,18 @@ public:
     }
 
     void Find(const Date& date) const {
-        
+        for (const auto& entry : dbase.at(date)) {
+            std::cout << entry << std::endl;
+        }
     }
 
     void Print() const {
         for (const auto& [key, value] : dbase) {
             std::cout << key << ' ';
             for (const auto& item : value) {
-                std::cout << item << ' ';
+                std::cout << item;
+                if (item != value.back() || value.size() != 1)
+					std::cout << ' ';
             }
             std::cout << std::endl;
         }
@@ -113,7 +119,7 @@ std::vector<std::string> ParseCommand(const std::string& str) {
 
     std::stringstream sstream(str);
 
-    while(std::getline(sstream, word, delimiter)) {
+    while (std::getline(sstream, word, delimiter)) {
         result.push_back(word);
     }
 
@@ -121,23 +127,47 @@ std::vector<std::string> ParseCommand(const std::string& str) {
 }
 
 Date ParseDate(const std::string& sDate) {
-    std::vector<std::string> date_parts;
-    char delimiter = '-';
-    std::string word;
+    int year = 0;
+    int month = 0;
+    int day = 0;
+    bool ok = true;
 
     std::stringstream sstream(sDate);
 
-    while(std::getline(sstream, word, delimiter)) {
-        date_parts.push_back(word);
+    ok = ok && (sstream >> year);
+    ok = ok && (sstream.peek() == '-');
+    sstream.ignore(1);
+
+    ok = ok && (sstream >> month);
+    ok = ok && (sstream.peek() == '-');
+    sstream.ignore(1);
+
+    ok = ok && (sstream >> day);
+    ok = ok && sstream.eof();
+
+    if (!ok) {
+        throw std::runtime_error("Wrong date format: " + sDate);
     }
 
-    Date date(std::stoi(date_parts[0]), std::stoi(date_parts[1]), std::stoi(date_parts[2]));
+    if (month < 1 or month > 12)
+        throw std::runtime_error("Month value is invalid: " + sDate);
+
+    if (day < 1 or day > 31)
+        throw std::runtime_error("Day value is invalid: " + sDate);
+
+    const Date date(year, month, day);
 
     return date;
 }
 
+void Tests() {
+    
+}
+
 int main() {
     Database db;
+
+    Tests();
 
     std::string command; // request date event
     std::vector<std::string> request; // add del find print
@@ -146,37 +176,43 @@ int main() {
 
     while (getline(std::cin, command)) {
         if (!command.empty()) {
-            request = ParseCommand(command);
+            try {
+                request = ParseCommand(command);
+	            if (request[0] == "Add") {
+	                date = ParseDate(request[1]);
+	                db.AddEvent(date, request[2]);
+	            }
+	            else if (request[0] == "Del") {
+	                date = ParseDate(request[1]);
+	                if (request.size() == 3) {
+	                    if (db.DeleteEvent(date, request[2])) {
+	                        std::cout << "Deleted successfully" << std::endl;
+	                    }
+	                    else {
+	                        std::cout << "Event not found" << std::endl;
+	                    }
+	                }
+	                else {
+	                    std::cout << "Deleted " << db.DeleteDate(date) << " events" << std::endl;
+	                }
+	            }
+	            else if (request[0] == "Find") {
+	                date = ParseDate(request[1]);
+	                db.Find(date);
+	            }
+	            else if (request[0] == "Print") {
+	                db.Print();
+	            }
+	            else {
+	                std::cout << "Unknown command: " << request[0] << std::endl;
+	            }
 
-            if (request[0] == "Add") {
-                date = ParseDate(request[1]);
-                db.AddEvent(date, request[2]);
+	            if (command == "q" or command == "Q") {
+	                break;
+	            }
             }
-            else if (request[0] == "Del") {
-                date = ParseDate(request[1]);
-                if (request.size() == 3) {
-                    if (db.DeleteEvent(date, request[2])) {
-                        std::cout << "Deleted successfully" << std::endl;
-                    } else {
-                        std::cout << "Event not found" << std::endl;
-                    }
-                } else {
-                    std:: cout << "Deleted " << db.DeleteDate(date) << " events";
-                }
-            }
-            else if (request[0] == "Find") {
-                date = ParseDate(request[1]);
-                db.Find(date);
-            }
-            else if (request[0] == "Print") {
-                db.Print();
-            }
-            else {
-                std::cout << "Unknown command: " << command << std::endl;
-            }
-
-            if (command == "q" or command == "Q") {
-                break;
+            catch (std::exception& e) {
+                std::cout << e.what() << std::endl;
             }
         }
     }
