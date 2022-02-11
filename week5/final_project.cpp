@@ -70,6 +70,7 @@ public:
             dbase.at(date).erase(
                     std::remove_if(dbase.at(date).begin(), dbase.at(date).end(),
                                    [&event] (const std::string& value) { return value == event; }), dbase.at(date).end());
+            SortEvents(date);
             return true;
         } else {
             return false;
