@@ -53,15 +53,17 @@ bool operator < (const Date& lhs, const Date& rhs) {
 
 std::ostream& operator << (std::ostream& stream, const Date& rhs) {
     stream <<
-        std::setw(4) << std::setfill('0') << rhs.GetYear() << '-' <<
-        std::setw(2) << std::setfill('0') << rhs.GetMonth() << '-' <<
-        std::setw(2) << std::setfill('0') << rhs.GetDay();
+           std::setw(4) << std::setfill('0') << rhs.GetYear() << '-' <<
+           std::setw(2) << std::setfill('0') << rhs.GetMonth() << '-' <<
+           std::setw(2) << std::setfill('0') << rhs.GetDay();
     return stream;
 }
 
 class Database {
 public:
     void AddEvent(const Date& date, const std::string& event) {
+        if (std::count(dbase[date].begin(), dbase[date].end(), event) > 0)
+            return;
         dbase[date].push_back(event);
         SortEvents(date);
     }
@@ -69,8 +71,8 @@ public:
     bool DeleteEvent(const Date& date, const std::string& event) {
         if (std::count(dbase[date].begin(), dbase[date].end(), event) > 0) {
             dbase.at(date).erase(
-                std::remove_if(dbase.at(date).begin(), dbase.at(date).end(),
-                    [&event](const std::string& value) { return value == event; }), dbase.at(date).end());
+                    std::remove_if(dbase.at(date).begin(), dbase.at(date).end(),
+                                   [&event](const std::string& value) { return value == event; }), dbase.at(date).end());
             SortEvents(date);
             return true;
         }
@@ -78,9 +80,9 @@ public:
     }
 
     int  DeleteDate(const Date& date) {
-        
+
         size_t size = 0;
-        if (dbase.empty())
+        if (dbase.empty() || dbase.count(date) == 0)
             return size;
         else {
             size = dbase.at(date).size();
@@ -92,21 +94,19 @@ public:
     }
 
     void Find(const Date& date) const {
-        for (const auto& entry : dbase.at(date)) {
-            std::cout << entry << std::endl;
+        if (!dbase.empty() && dbase.count(date) > 0) {
+            for (const auto &entry: dbase.at(date)) {
+                std::cout << entry << std::endl;
+            }
         }
     }
 
     void Print() const {
         for (const auto& [key, value] : dbase) {
             if (!value.empty()) {
-                std::cout << key << ' ';
                 for (const auto& item : value) {
-                    std::cout << item;
-                    if (item != value.back() || value.size() != 1)
-                        std::cout << ' ';
+                    std::cout << key << ' ' << item << std::endl;
                 }
-                std::cout << std::endl;
             }
         }
     }
@@ -168,7 +168,7 @@ Date ParseDate(const std::string& sDate) {
 }
 
 void Tests() {
-    
+
 }
 
 int main() {
@@ -221,9 +221,9 @@ int main() {
 
         }
     }
-	catch (std::exception& e) {
-		std::cout << e.what() << std::endl;
-	}
+    catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
 
     return 0;
 }
