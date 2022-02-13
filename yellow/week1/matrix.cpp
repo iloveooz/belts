@@ -5,7 +5,22 @@
 
 // * класс Matrix
 class Matrix {
+public:
+    Matrix() {
+        num_rows = 0;
+        num_cols = 0;
+    }
 
+    Matrix(int rows, int cols) {
+        num_rows = rows;
+        num_cols = cols;
+    }
+
+private:
+    int num_rows;
+    int num_cols;
+
+    std::vector<std::vector<int>> m_elements;
 };
 
 // * оператор ввода для класса Matrix из потока istream
