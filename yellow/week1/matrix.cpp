@@ -8,13 +8,15 @@
 class Matrix {
 public:
     Matrix() {
-        num_rows = 0;
-        num_cols = 0;
+        num_rows = 10;
+        num_cols = 10;
+        Reset(num_rows, num_cols);
     }
 
     Matrix(int rows, int cols) {
         num_rows = rows;
         num_cols = cols;
+        Reset(num_rows, num_cols);
     }
 
     int getRows() const {
@@ -29,6 +31,18 @@ public:
         return m_elements;
     }
 private:
+    void Reset(int rows, int cols) {
+	    if (rows < 0)
+            throw std::out_of_range("num_rows must be >= 0");
+        if (cols < 0)
+            throw std::out_of_range("num_rows must be >= 0");
+        if (rows == 0 and cols == 0) {
+            num_rows = 0;
+            num_cols = 0;
+        }
+        m_elements.assign(num_rows, std::vector<int>(num_cols));
+    }
+
     int num_rows;
     int num_cols;
 
@@ -40,10 +54,10 @@ std::istream& operator >> (std::istream& stream, Matrix& matrix);
 
 // * оператор вывода класса Matrix в поток ostream
 std::ostream& operator << (std::ostream& stream, const Matrix& matrix) {
-    for (const auto& entry : matrix.getElements()) {
-        for (const auto& item : entry) {
-            stream << item;
-            if (item != entry.back())
+    for (int col = 0; col < matrix.getRows(); ++col) {
+        for (int row = 0; row < matrix.getCols(); ++row) {
+            stream << matrix.getElements()[col][row];
+            if (row > 0)
 				stream << ' ';
         }
         stream << std::endl;
@@ -61,7 +75,8 @@ int main() {
     Matrix one;
     Matrix two;
 
-    std::cin >> one >> two;
-    std::cout << one + two << std::endl;
+    // std::cin >> one >> two;
+    std::cout << one << std::endl;
+    system("pause");
     return 0;
 }
