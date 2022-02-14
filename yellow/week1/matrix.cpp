@@ -1,3 +1,4 @@
+// ReSharper disable CommentTypo
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -16,6 +17,17 @@ public:
         num_cols = cols;
     }
 
+    int getRows() const {
+        return num_rows;
+    }
+
+    int getCols() const {
+        return num_cols;
+    }
+    
+    std::vector<std::vector<int>> getElements() const {
+        return m_elements;
+    }
 private:
     int num_rows;
     int num_cols;
@@ -27,7 +39,17 @@ private:
 std::istream& operator >> (std::istream& stream, Matrix& matrix);
 
 // * оператор вывода класса Matrix в поток ostream
-std::ostream& operator << (std::ostream& stream, const Matrix& matrix);
+std::ostream& operator << (std::ostream& stream, const Matrix& matrix) {
+    for (const auto& entry : matrix.getElements()) {
+        for (const auto& item : entry) {
+            stream << item;
+            if (item != entry.back())
+				stream << ' ';
+        }
+        stream << std::endl;
+    }
+    return stream;
+}
 
 // * оператор проверки на равенство двух объектов класса Matrix
 bool operator == (const Matrix& lhs, const Matrix& rhs);
