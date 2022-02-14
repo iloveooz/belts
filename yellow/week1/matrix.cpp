@@ -54,10 +54,10 @@ std::istream& operator >> (std::istream& stream, Matrix& matrix);
 
 // * оператор вывода класса Matrix в поток ostream
 std::ostream& operator << (std::ostream& stream, const Matrix& matrix) {
-    for (int col = 0; col < matrix.getRows(); ++col) {
-        for (int row = 0; row < matrix.getCols(); ++row) {
-            stream << matrix.getElements()[col][row];
-            if (row > 0)
+    for (int row = 0; row < matrix.getCols(); ++row) {
+        for (int col = 0; col < matrix.getCols(); ++col) {
+            stream << matrix.getElements()[row][col];
+            if (col > 0)
 				stream << ' ';
         }
         stream << std::endl;
